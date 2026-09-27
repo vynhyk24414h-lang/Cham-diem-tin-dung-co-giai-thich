@@ -1,0 +1,8 @@
+#danh sách các thư viện cần thiết
+pandas
+numpy
+matplotlib
+seaborn
+jupyter
+ucimlrepo #gói chính thức của UCI để tải dữ liệu
+openpyxl #hỗ trợ đọc/ghi file Excel nếu cần
