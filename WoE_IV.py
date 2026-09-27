@@ -485,6 +485,95 @@ print("\n" + "="*50)
 print("--- PHÂN LOẠI IV ---")
 print(iv_table.to_string(index=False))
 
+# KIỂM TRA CHI TIẾT CÁC BIẾN CÓ IV CAO
+
+print("\n" + "="*50)
+print("--- KIỂM TRA CHI TIẾT CÁC BIẾN IV CAO ---")
+
+for col in ["PAY_0", "PAY_2"]:
+
+    print("\n" + "-"*60)
+    print(f"Biến: {col}")
+
+    print(
+        final_woe_tables[col][
+            ["count", "good", "bad", "dist_good", "dist_bad", "woe", "iv"]
+        ].to_string()
+    )
+
+
+    # KIỂM TRA ĐỘ ỔN ĐỊNH BAD RATE GIỮA TRAIN VÀ TEST
+
+print("\n" + "="*50)
+print("--- KIỂM TRA BAD RATE TRAIN VS TEST ---")
+
+for col in ["PAY_0_final", "PAY_2_final"]:
+
+    print("\n" + "-"*60)
+    print(f"Biến: {col}")
+
+    # TRAIN
+    train_check = train.groupby(
+        col,
+        observed=False
+    )["default"].agg(
+        count="count",
+        bad="sum"
+    )
+
+    train_check["good"] = (
+        train_check["count"] - train_check["bad"]
+    )
+
+    train_check["bad_rate"] = (
+        train_check["bad"] / train_check["count"]
+    )
+
+    # TEST
+    test_check = test.groupby(
+        col,
+        observed=False
+    )["default"].agg(
+        count="count",
+        bad="sum"
+    )
+
+    test_check["good"] = (
+        test_check["count"] - test_check["bad"]
+    )
+
+    test_check["bad_rate"] = (
+        test_check["bad"] / test_check["count"]
+    )
+
+    # Đổi tên để phân biệt TRAIN và TEST
+    train_check = train_check[
+        ["count", "bad", "bad_rate"]
+    ].rename(
+        columns={
+            "count": "train_count",
+            "bad": "train_bad",
+            "bad_rate": "train_bad_rate"
+        }
+    )
+
+    test_check = test_check[
+        ["count", "bad", "bad_rate"]
+    ].rename(
+        columns={
+            "count": "test_count",
+            "bad": "test_bad",
+            "bad_rate": "test_bad_rate"
+        }
+    )
+
+    comparison = train_check.join(
+        test_check,
+        how="outer"
+    )
+
+    print(comparison)
+
 # KIỂM TRA NGƯỠNG IV = 0.02
 
 print("\n" + "="*50)
