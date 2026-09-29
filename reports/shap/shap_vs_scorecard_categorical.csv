@@ -1,0 +1,5 @@
+feature,nhom,so_khach,ty_le_pct,shap_tb_xgb,dong_gop_tb_logit
+EDUCATION,1,2130,35.5,0.0052,-0.0618
+EDUCATION,2,2774,46.23,0.0147,0.0403
+EDUCATION,3,1014,16.9,-0.0049,0.0664
+EDUCATION,4,82,1.37,-0.6764,-0.492
