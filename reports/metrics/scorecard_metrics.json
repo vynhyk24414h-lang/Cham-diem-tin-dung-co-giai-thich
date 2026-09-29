@@ -1,0 +1,8 @@
+{
+    "model_name": "Scorecard / Logistic",
+    "test_metrics": {
+        "auc": 0.6027615229691774,
+        "gini": 0.2055230459383548,
+        "ks": 0.162798652039301
+    }
+}

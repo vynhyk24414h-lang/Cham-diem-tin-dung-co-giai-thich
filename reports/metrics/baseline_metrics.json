@@ -1,0 +1,8 @@
+{
+    "model_name": "Baseline - LIMIT_BAL",
+    "test_metrics": {
+        "auc": 0.595477,
+        "gini": 0.190954,
+        "ks": 0.156712
+    }
+}
