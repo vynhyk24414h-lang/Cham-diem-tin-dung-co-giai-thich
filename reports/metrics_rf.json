@@ -1,0 +1,26 @@
+{
+    "model_name": "Random Forest",
+    "random_state": 42,
+    "best_params": {
+        "max_depth": 16,
+        "min_samples_leaf": 30,
+        "n_estimators": 200
+    },
+    "cv_results": {
+        "n_splits": 5,
+        "cv_auc_mean": 0.7852977696812342,
+        "cv_auc_std": 0.0050337150468463985
+    },
+    "train_metrics": {
+        "auc": 0.8648144478615495,
+        "gini": 0.729628895723099,
+        "ks": 0.5766885992000103
+    },
+    "test_metrics": {
+        "auc": 0.7753149415641266,
+        "gini": 0.5506298831282532,
+        "ks": 0.42806750640332936
+    },
+    "auc_diff": 0.08949950629742287,
+    "model_file_size_mb": 10.070880889892578
+}

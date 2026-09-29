@@ -7,3 +7,5 @@ jupyter
 ucimlrepo #gói chính thức của UCI để tải dữ liệu
 openpyxl #hỗ trợ đọc/ghi file Excel nếu cần
 xlrd #"dịch" các file Excel định dạng cũ (đuôi .xls)
+scikit-learn==1.7.2
+xgboost==3.4.1

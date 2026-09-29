@@ -1,0 +1,27 @@
+{
+    "model_name": "XGBoost",
+    "random_state": 42,
+    "scale_pos_weight": 3.520625353173856,
+    "best_params": {
+        "learning_rate": 0.05,
+        "max_depth": 3,
+        "n_estimators": 200
+    },
+    "cv_results": {
+        "n_splits": 5,
+        "cv_auc_mean": 0.7816453578083437,
+        "cv_auc_std": 0.006842017528982285
+    },
+    "train_metrics": {
+        "auc": 0.8068349617318841,
+        "gini": 0.6136699234637681,
+        "ks": 0.4636074512519681
+    },
+    "test_metrics": {
+        "auc": 0.7791827411748713,
+        "gini": 0.5583654823497426,
+        "ks": 0.42689254807758203
+    },
+    "auc_diff": 0.027652220557012774,
+    "model_file_size_mb": 0.23267173767089844
+}
