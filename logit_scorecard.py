@@ -253,3 +253,92 @@ vif_final = vif_final.sort_values("VIF", ascending=False)
 print(vif_final.to_string(index=False))
 
 
+# ==============================================================================
+# BƯỚC 4: BẢNG ĐIỂM THEO NHÓM GIÁ TRỊ (POINTS TABLE) — Mục 3.1.2 báo cáo
+# ==============================================================================
+
+def build_points_table(res, feats, raw_df, woe_df, factor, offset):
+    """
+    Khôi phục nhóm (bin) gốc từ cặp (giá trị gốc, WoE), rồi quy đổi điểm
+    cho từng nhóm theo công thức phân bổ đều hằng số beta0 trên n biến.
+    """
+    n = len(feats)
+    b0 = res.params["const"]
+    rows = []
+    for var in feats:
+        beta = res.params[var]
+        tmp = pd.DataFrame({"raw": raw_df[var].values, "woe": woe_df[var].values})
+        for woe_val, g in tmp.groupby("woe"):
+            uniq = sorted(g["raw"].unique().tolist())
+            # Nếu bin gồm ít giá trị rời rạc thì liệt kê, nhiều thì viết khoảng
+            label = ", ".join(map(str, uniq)) if len(uniq) <= 6 else f"[{uniq[0]}, {uniq[-1]}]"
+            points = -(woe_val * beta + b0 / n) * factor + offset / n
+            rows.append(dict(
+                variable=var,
+                raw_values=label,
+                woe=round(float(woe_val), 4),
+                n_obs=int(len(g)),
+                beta=round(float(beta), 4),
+                points=int(round(points)),
+            ))
+    out = pd.DataFrame(rows)
+    return out.sort_values(["variable", "points"], ascending=[True, False]).reset_index(drop=True)
+
+points_df = build_points_table(res, feats, train, woe_train, FACTOR, OFFSET)
+
+import os
+os.makedirs("reports/tables", exist_ok=True)
+points_df.to_csv("reports/tables/scorecard_points.csv", index=False)
+
+print("=== BẢNG ĐIỂM ĐẦY ĐỦ (mọi biến) ===")
+print(points_df.to_string(index=False))
+
+
+pay0 = points_df[points_df["variable"] == "PAY_0"].copy()
+print("\n=== ĐIỂM CHI TIẾT BIẾN PAY_0 (lịch sử thanh toán tháng gần nhất) ===")
+print(pay0.to_string(index=False))
+
+def find_bin_containing(df_var, raw_value):
+    """Tìm dòng có chứa raw_value trong danh sách raw_values của bin."""
+    for _, r in df_var.iterrows():
+        vals = [v.strip() for v in r["raw_values"].split(",")] if "," in r["raw_values"] else [r["raw_values"]]
+        if str(raw_value) in vals or (
+            "[" in r["raw_values"] and
+            float(r["raw_values"].strip("[]").split(",")[0]) <= raw_value <=
+            float(r["raw_values"].strip("[]").split(",")[1])
+        ):
+            return r
+    return None
+
+on_time = find_bin_containing(pay0, 0)   # PAY_0 = 0: dùng thẻ nhưng trả tối thiểu, không trễ
+late_1m = find_bin_containing(pay0, 1)   # PAY_0 = 1: trễ 1 tháng
+
+if on_time is not None and late_1m is not None:
+    diff = int(on_time["points"] - late_1m["points"])
+    print(f"\nKhách trả đúng hạn (PAY_0 nhóm chứa 0): {int(on_time['points'])} điểm")
+    print(f"Khách trễ 1 tháng    (PAY_0 nhóm chứa 1): {int(late_1m['points'])} điểm")
+    print(f"→ Trễ 1 tháng bị trừ {diff} điểm so với trả đúng hạn.")
+else:
+    print("\nLưu ý: PAY_0=0 và PAY_0=1 có thể đã được Nhóm 2 gộp chung một nhóm khi chia WoE.")
+    print("Kiểm tra bảng đầy đủ ở trên để biết chính xác các nhóm giá trị.")
+# ==============================================================================
+# BƯỚC 5: XUẤT MODEL ARTIFACT CHO NHÓM 4, NHÓM 5
+# ==============================================================================
+import os
+os.makedirs("models", exist_ok=True)
+
+artifact = dict(
+    model_type="logistic_scorecard",
+    features=feats,
+    params=res.params.to_dict(),
+    pvalues=res.pvalues.to_dict(),
+    cfg=CFG,
+    factor=FACTOR,
+    offset=OFFSET,
+    band_edges=list(edges),
+    band_labels=BAND_LABELS,
+    random_state=RANDOM_STATE,
+)
+joblib.dump(artifact, "models/logit_scorecard.pkl")
+print("Đã lưu: models/logit_scorecard.pkl")
+print("Đã lưu: reports/tables/scorecard_points.csv")
