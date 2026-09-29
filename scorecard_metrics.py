@@ -8,7 +8,7 @@ from sklearn.metrics import roc_auc_score, roc_curve
 # =========================
 # 1. Đọc dữ liệu và model
 # =========================
-test = pd.read_csv("data/test.csv")
+test = pd.read_csv("data/woe_test.csv")
 
 with open("models/logit_scorecard.pkl", "rb") as f:
     model = __import__("pickle").load(f)
