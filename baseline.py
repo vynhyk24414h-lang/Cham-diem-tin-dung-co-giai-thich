@@ -1,3 +1,5 @@
+import json
+import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score, roc_curve
 
@@ -7,18 +9,14 @@ from sklearn.metrics import roc_auc_score, roc_curve
 # =========================
 test = pd.read_csv("data/test.csv")
 
-# Biến đầu vào của baseline
 X = test["LIMIT_BAL"]
-
-# Biến mục tiêu
 y = test["default"]
 
 
 # =========================
-# 2. Tạo điểm dự báo
+# 2. Tạo điểm rủi ro
 # =========================
 # LIMIT_BAL càng thấp -> rủi ro default càng cao
-# Vì vậy dùng -LIMIT_BAL làm score rủi ro
 score = -X
 
 
@@ -38,7 +36,7 @@ gini = 2 * auc - 1
 # 5. Tính KS
 # =========================
 fpr, tpr, thresholds = roc_curve(y, score)
-ks = max(tpr - fpr)
+ks = np.max(tpr - fpr)
 
 
 # =========================
@@ -48,3 +46,23 @@ print("===== BASELINE: LIMIT_BAL =====")
 print(f"AUC  : {auc:.6f}")
 print(f"Gini : {gini:.6f}")
 print(f"KS   : {ks:.6f}")
+
+
+# =========================
+# 7. Lưu kết quả ra JSON
+# =========================
+metrics = {
+    "model_name": "Baseline - LIMIT_BAL",
+    "test_metrics": {
+        "auc": float(auc),
+        "gini": float(gini),
+        "ks": float(ks)
+    }
+}
+
+output_path = "reports/metrics/baseline_metrics.json"
+
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(metrics, f, indent=4)
+
+print(f"\nĐã lưu kết quả: {output_path}")
