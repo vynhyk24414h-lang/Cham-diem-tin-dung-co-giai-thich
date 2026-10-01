@@ -259,12 +259,12 @@ def save_outputs(model, tune_result: dict,
         "best_params"  : tune_result["best_params"],
         "cv_auc_mean"  : round(tune_result["cv_auc_mean"], 6),
         "cv_auc_std"   : round(tune_result["cv_auc_std"],  6),
-        "train": {
+        "train_metrics": {
             "auc" : round(train_metrics["auc"],  6),
             "gini": round(train_metrics["gini"], 6),
             "ks"  : round(train_metrics["ks"],   6),
         },
-        "test": {
+        "test_metrics": {
             "auc" : round(test_metrics["auc"],  6),
             "gini": round(test_metrics["gini"], 6),
             "ks"  : round(test_metrics["ks"],   6),

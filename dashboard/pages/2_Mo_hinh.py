@@ -1,7 +1,7 @@
 """
 dashboard/pages/2_Mo_hinh.py
 =================================================================================
-Trang "Mô hình & Chấm điểm khách hàng" 💛
+Trang "Mô hình & Chấm điểm khách hàng" 
  
 Trang này chỉ ĐỌC LẠI những gì cả nhóm đã tính sẵn (model, metrics, predictions),
 không train lại bất cứ mô hình nào — giữ đúng tinh thần "kết quả đã có, dashboard

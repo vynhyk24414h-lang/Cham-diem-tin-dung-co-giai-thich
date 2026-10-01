@@ -1,0 +1,16 @@
+case,row_index,pd_xgb,y_true,top,feature,value,shap
+high_risk,4944,0.9537,1,1,PAY_0,2,1.4974
+high_risk,4944,0.9537,1,2,BILL_AMT1,258442,0.2908
+high_risk,4944,0.9537,1,3,PAY_6,2,0.2465
+high_risk,4944,0.9537,1,4,PAY_2,2,0.1888
+high_risk,4944,0.9537,1,5,PAY_4,2,0.1687
+low_risk,4590,0.0569,0,1,EDUCATION,4,-1.0105
+low_risk,4590,0.0569,0,2,LIMIT_BAL,400000,-0.4209
+low_risk,4590,0.0569,0,3,PAY_0,-2,-0.3657
+low_risk,4590,0.0569,0,4,PAY_AMT3,11930,-0.1891
+low_risk,4590,0.0569,0,5,BILL_AMT1,14889,-0.1605
+borderline,4831,0.5001,0,1,PAY_0,-2,-0.4253
+borderline,4831,0.5001,0,2,PAY_AMT3,0,0.2338
+borderline,4831,0.5001,0,3,PAY_AMT1,0,0.1292
+borderline,4831,0.5001,0,4,PAY_AMT4,0,0.1086
+borderline,4831,0.5001,0,5,PAY_3,-2,-0.1034

@@ -1,4 +1,4 @@
-test_index,y_true,prob_default
+index,y_true,prob_default
 0,0,0.33683854
 1,0,0.37452722
 2,0,0.37591887

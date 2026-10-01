@@ -1,4 +1,4 @@
-train_index,y_true,prob_default
+index,y_true,prob_default
 0,0,0.9067359
 1,0,0.5869958
 2,0,0.6957349
