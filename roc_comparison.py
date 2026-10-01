@@ -12,6 +12,7 @@ from xgboost import XGBClassifier
 # ==========================================
 
 test = pd.read_csv("data/test.csv")
+woe_test = pd.read_csv("data/woe_test.csv")
 
 y = test["default"]
 
@@ -39,7 +40,7 @@ params = scorecard["params"]
 logit_score = np.full(len(test), params["const"], dtype=float)
 
 for feature in features:
-    logit_score += params[feature] * test[feature]
+    logit_score += params[feature] * woe_test[feature]
 
 fpr_logit, tpr_logit, _ = roc_curve(y, logit_score)
 auc_logit = auc(fpr_logit, tpr_logit)
