@@ -295,6 +295,23 @@ print(points_df.to_string(index=False))
 
 
 pay0 = points_df[points_df["variable"] == "PAY_0"].copy()
+
+# Sắp xếp PAY_0 theo mức độ trễ hạn tăng dần
+def get_pay0_order(value):
+    value = str(value).strip()
+
+    # Nhóm 5, 6, 7, 8 luôn nằm cuối
+    if value.startswith("5,"):
+        return 99
+
+    try:
+        return float(value)
+    except:
+        return 98
+
+pay0["sort_order"] = pay0["raw_values"].apply(get_pay0_order)
+pay0 = pay0.sort_values("sort_order").drop(columns="sort_order")
+
 print("\n=== ĐIỂM CHI TIẾT BIẾN PAY_0 (lịch sử thanh toán tháng gần nhất) ===")
 print(pay0.to_string(index=False))
 
@@ -322,7 +339,7 @@ else:
     print("\nLưu ý: PAY_0=0 và PAY_0=1 có thể đã được Nhóm 2 gộp chung một nhóm khi chia WoE.")
     print("Kiểm tra bảng đầy đủ ở trên để biết chính xác các nhóm giá trị.")
 # ==============================================================================
-# BƯỚC 5: XUẤT MODEL ARTIFACT CHO NHÓM 4, NHÓM 5
+# BƯỚC 5: XUẤT MODEL ARTIFACT 
 # ==============================================================================
 import os
 os.makedirs("models", exist_ok=True)
