@@ -13,3 +13,5 @@ Dự án đã được tích hợp sẵn vào một file điều phối duy nh�
 pip install -r requirements.txt
 **Bước 2: Khởi chạy toàn bộ quy trình (Pipeline)
 python run_all.py
+** Bước 3: Chạy dashboard của dự án
+python -m streamlit run app.py
