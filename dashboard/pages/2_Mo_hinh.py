@@ -518,7 +518,32 @@ k4.metric(
 
 if baseline_metrics:
     with st.expander("So sánh với mô hình đối chứng (Baseline)"):
-        st.json(baseline_metrics)
+        st.markdown(
+            f"**Tên mô hình:** {baseline_metrics.get('model_name', 'Baseline')}"
+        )
+
+        test_metrics = baseline_metrics.get("test_metrics", {})
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric(
+            "AUC",
+            f"{test_metrics['auc']:.3f}"
+            if test_metrics.get("auc") is not None else "—"
+        )
+
+        col2.metric(
+            "Gini",
+            f"{test_metrics['gini']:.3f}"
+            if test_metrics.get("gini") is not None else "—"
+        )
+
+        col3.metric(
+            "KS",
+            f"{test_metrics['ks']:.3f}"
+            if test_metrics.get("ks") is not None else "—"
+        )
+
         st.caption(
             "Baseline là mốc tham chiếu để đánh giá mức cải thiện "
             "của các mô hình chấm điểm tín dụng."
