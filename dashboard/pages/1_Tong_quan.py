@@ -169,7 +169,7 @@ fig_corr = px.imshow(
 fig_corr.update_traces(textfont=dict(size=14, family="Arial", weight="bold"))
 fig_corr.update_layout(
     height=800, # Tăng height để chứa đủ 16 biến
-    title=dict(text="<b>Correlation Heatmap (WoE Transformed Variables)</b>", font=dict(size=24)),
+    title=dict(text="<b>Heatmap ma trận tương quan các biến sau chuyển đổi WoE</b>", font=dict(size=24)),
     xaxis=dict(tickfont=dict(size=12, weight="bold")),
     yaxis=dict(tickfont=dict(size=12, weight="bold")),
     font=dict(family="Arial")
