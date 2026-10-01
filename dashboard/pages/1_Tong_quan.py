@@ -47,7 +47,7 @@ st.write("") # Tạo khoảng trắng
 st.info("""
 **Chi tiết:** Bộ dữ liệu gồm 30.000 khách hàng. Biến mục tiêu là khả năng khách hàng không thanh toán đúng hạn vào tháng tiếp theo. 
 Sau quá trình làm sạch, chuẩn hóa và xử lý WoE/IV, tập dữ liệu được chia thành **Train (24.000)** và **Test (6.000)**. 
-16 biến có sức mạnh dự báo cao nhất được lựa chọn làm đầu vào cho mô hình chấm điểm tín dụng.
+16 biến có khả năng phân biệt cao nhất được lựa chọn làm đầu vào cho mô hình chấm điểm tín dụng.
 """)
 
 st.markdown("<br><br>", unsafe_allow_html=True)
@@ -90,7 +90,7 @@ with col_b2:
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 # C. WoE / IV
-st.markdown("## **C. Sức mạnh phân biệt của các biến (WoE / IV)**")
+st.markdown("## **C. Khả năng phân biệt của các biến (WoE / IV)**")
 
 iv_data = {
     "Variable": ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6", "LIMIT_BAL", "PAY_AMT1", "PAY_AMT2", "BILL_AMT1"],
@@ -120,7 +120,7 @@ with col_c2:
     fig_iv.update_layout(
         height=550,
         coloraxis_showscale=False, 
-        title=dict(text="<b>Sức mạnh phân biệt (IV) của các biến</b>", font=dict(size=24)),
+        title=dict(text="<b>Khả năng phân biệt (IV) của các biến</b>", font=dict(size=24)),
         xaxis=dict(title="<b>Giá trị IV</b>", tickfont=dict(size=16)),
         yaxis=dict(title="<b>Tên biến</b>", tickfont=dict(size=16, weight="bold")),
         font=dict(family="Arial") # Bỏ màu chữ cứng để tự động sáng/tối
