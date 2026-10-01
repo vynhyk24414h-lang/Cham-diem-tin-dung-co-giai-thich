@@ -46,6 +46,12 @@ st.set_page_config(page_title="Mô hình & Chấm điểm", page_icon="🤖", la
 # TÙY CHỈNH GIAO DIỆN
 # ---------------------------------------------------------------------------
 st.markdown("""
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li {
+    color: #243B53;
+    font-size: 16px;
+    line-height: 1.6;
+}
 <style>
     /* Thu gọn khoảng trắng hai bên và phía trên */
     .block-container {
@@ -571,6 +577,9 @@ with tab_compare:
             "KS": "{:.3f}",
         })
         .set_properties(**{
+            "font-size": "16px",
+            "color": "#17324D",
+            "font-weight": "600",
             "text-align": "center",
             "padding": "10px 14px",
         })
@@ -578,6 +587,7 @@ with tab_compare:
             subset=["Mô hình"],
             **{"text-align": "left", "font-weight": "500"},
         )
+        
                 .set_table_styles([
             {
                 "selector": "th",
@@ -585,10 +595,10 @@ with tab_compare:
                     ("background-color", "#E2EAF3"),
                     ("color", "#194A7B"),
                     ("font-weight", "700"),
-                    ("font-size", "16px"),
-                    ("padding", "12px 14px"),
+                    ("font-size", "19px"),
+                    ("padding", "14px 16px"),
                     ("text-align", "center"),
-                    ("border", "1px solid #C7D4E2"),
+                    ("border", "1.5px solid #C7D4E2"),
                 ],
             },
             {
@@ -650,17 +660,21 @@ with tab_compare:
             ),
         )
 
-    fig_bar.update_layout(
+        fig_bar.update_layout(
         barmode="group",
-        height=420,
-        margin=dict(l=20, r=20, t=35, b=30),
-        paper_bgcolor="#F2F5FA",
-        plot_bgcolor="#F8FAFC",
+        height=460,
+        margin=dict(l=30, r=25, t=50, b=45),
+        paper_bgcolor="#F8FAFC",
+        plot_bgcolor="#FFFFFF",
+
+        # Chữ mặc định trong biểu đồ
         font=dict(
             family="Arial, sans-serif",
-            size=13,
-            color="#334155",
+            size=16,
+            color="#17324D",
         ),
+
+        # Chú giải các chỉ số
         legend=dict(
             title_text="Chỉ số",
             orientation="h",
@@ -668,27 +682,42 @@ with tab_compare:
             y=1.02,
             xanchor="right",
             x=1,
+            font=dict(size=15, color="#17324D"),
+            title_font=dict(size=16, color="#17324D"),
         ),
+
+        # Tên mô hình trên trục ngang
         xaxis=dict(
             title=None,
             showgrid=False,
             showline=True,
             linecolor="#CBD5E1",
-            tickfont=dict(size=12),
+            tickfont=dict(size=15, color="#17324D"),
         ),
+
+        # Giá trị chỉ số trên trục dọc
         yaxis=dict(
             title="Giá trị chỉ số",
+            title_font=dict(size=17, color="#17324D"),
+            tickfont=dict(size=15, color="#17324D"),
             range=[0, 1.12],
             dtick=0.2,
-            gridcolor="#E8EDF3",
+            gridcolor="#E2E8F0",
             zeroline=False,
         ),
+
         bargap=0.25,
         bargroupgap=0.08,
+
         hoverlabel=dict(
-            bgcolor="white",
-            font_color="#17324D",
+            bgcolor="#FFFFFF",
+            font=dict(size=15, color="#17324D"),
         ),
+    )
+
+    # Tăng cỡ chữ của số liệu nằm trên các cột
+    fig_bar.update_traces(
+        textfont=dict(size=15, color="#17324D")
     )
 
     st.plotly_chart(
@@ -696,6 +725,7 @@ with tab_compare:
         use_container_width=True,
         config={"displayModeBar": False},
     )
+ 
  
 # ============================================================================
 # TAB 2 — ROC CURVE
