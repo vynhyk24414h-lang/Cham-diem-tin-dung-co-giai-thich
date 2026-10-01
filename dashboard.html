@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credit Scoring Model Validation & Risk Lab | UEL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --navy-deep: #00195a;
+      --indigo-dark: #31327e;
+      --purple-royal: #594da3;
+      --lavender-med: #826aca;
+      --violet-soft: #ad88f1;
+      --bg-canvas: #f4f6fa;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-subtle: #e2e8f0;
+      --radius-card: 12px;
+      --shadow-card: 0 4px 16px rgba(0, 25, 90, 0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 250px;
+      background-color: var(--bg-card);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .sidebar-header {
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sidebar-header h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--navy-deep);
+      letter-spacing: -0.01em;
+    }
+    .sidebar-header p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-weight: 600;
+    }
+    .nav-menu {
+      list-style: none;
+      padding: 16px 12px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav-item {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nav-item:hover {
+      background-color: #f1f3f9;
+      color: var(--indigo-dark);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, var(--navy-deep), var(--purple-royal));
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(89, 77, 163, 0.25);
+    }
+    .sidebar-footer {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      background: #fafbfe;
+    }
+
+    /* MAIN WRAPPER */
+    .main-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      height: 100vh;
+    }
+    .topbar {
+      padding: 16px 32px;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .topbar h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy-deep);
+    }
+    .topbar .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background-color: #edf0fa;
+      color: var(--purple-royal);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .content-area {
+      padding: 20px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* TAB PANELS */
+    .tab-panel { display: none; flex-direction: column; gap: 16px; }
+    .tab-panel.active { display: flex; }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      padding: 16px 18px;
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy-deep);
+      letter-spacing: -0.02em;
+    }
+    .kpi-desc {
+      font-size: 0.72rem;
+      color: var(--purple-royal);
+      font-weight: 600;
+    }
+
+    /* STORY BANNER */
+    .story-banner {
+      background: #f8fafc;
+      border-left: 4px solid var(--purple-royal);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      color: #1e293b;
+      line-height: 1.5;
+      border: 1px solid var(--border-subtle);
+    }
+    .story-banner strong { color: var(--navy-deep); }
+
+    /* GRIDS */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1.3fr 1.3fr; gap: 16px; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-card);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy-deep);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: -4px;
+    }
+    .chart-container {
+      position: relative;
+      flex-grow: 1;
+      min-height: 230px;
+      width: 100%;
+    }
+
+    /* DATA TABLES */
+    .table-container {
+      overflow-x: auto;
+      max-height: 240px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left; }
+    th {
+      background: #f8fafc;
+      color: var(--navy-deep);
+      font-weight: 700;
+      padding: 9px 12px;
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-subtle); color: #334155; }
+    tr:hover td { background-color: #f8faff; }
+
+    /* WHAT-IF SLIDER */
+    .slider-box {
+      background: #fafbfe;
+      border: 1px solid #dce2f3;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--purple-royal);
+      cursor: pointer;
+      height: 6px;
+    }
+    .preset-btn {
+      padding: 6px 12px;
+      background: #ffffff;
+      border: 1px solid var(--lavender-med);
+      color: var(--purple-royal);
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover { background: var(--purple-royal); color: #ffffff; }
+
+    /* CONFUSION MATRIX */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .matrix-cell {
+      padding: 12px 14px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .matrix-cell.tn { background: #eef2ff; border-left: 4px solid var(--lavender-med); }
+    .matrix-cell.fp { background: #fff1f2; border-left: 4px solid #f43f5e; }
+    .matrix-cell.fn { background: #fff5f5; border-left: 4px solid #e11d48; }
+    .matrix-cell.tp { background: #eff6ff; border-left: 4px solid var(--navy-deep); }
+    .matrix-label { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); }
+    .matrix-val { font-size: 1.2rem; font-weight: 800; color: var(--navy-deep); }
+    .matrix-sub { font-size: 0.68rem; color: #475569; }
+
+    /* CASE SELECTOR */
+    .case-btn-group { display: flex; gap: 8px; }
+    .case-btn {
+      padding: 8px 12px;
+      border: 1px solid var(--border-subtle);
+      background: #ffffff;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .case-btn.active {
+      background: var(--navy-deep);
+      color: #ffffff;
+      border-color: var(--navy-deep);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Credit Scoring Lab</h2>
+      <p>UEL • Tài chính Ứng dụng</p>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item active" onclick="switchTab(0)">1. Dữ liệu & Thẻ điểm</li>
+      <li class="nav-item" onclick="switchTab(1)">2. Đối sánh Mô hình (RQ1)</li>
+      <li class="nav-item" onclick="switchTab(2)">3. Giải mã SHAP (RQ2)</li>
+      <li class="nav-item" onclick="switchTab(3)">4. Ngưỡng cắt & Công bằng (RQ3, RQ4)</li>
+      <li class="nav-item" onclick="switchTab(4)">5. Thẩm định Hồ sơ Cá nhân (Local SHAP)</li>
+    </ul>
+    <div class="sidebar-footer">
+      <strong>Mẫu nghiên cứu:</strong> UCI Credit Card<br>
+      Train: 24.000 | Test: 6.000 (80/20)<br>
+      Champion: XGBoost (AUC 0.7792)
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <main class="main-wrapper">
+    <header class="topbar">
+      <h1 id="page-title">1. Cơ sở Dữ liệu & Thang điểm Scorecard (WoE/IV)</h1>
+      <span class="badge">Nghiên cứu Định lượng IRB</span>
+    </header>
+
+    <div class="content-area">
+
+      <!-- ==================== TAB 1: DATA & SCORECARD ==================== -->
+      <section class="tab-panel active" id="tab-0">
+        <div class="story-banner">
+          <strong>Thông điệp Nền tảng Dữ liệu:</strong> Mẫu 30.000 hồ sơ được chia phân tầng (Stratified Split 80/20) đảm bảo tỷ lệ nợ xấu 22,12% đồng nhất. Thang điểm Scorecard 5 dải phân tách rủi ro hoàn hảo: tỷ lệ nợ xấu thực tế tăng đơn điệu từ 7,87% (Band A) lên 67,72% (Band E), chứng minh không có hiện tượng rò rỉ dữ liệu (Data Leakage).
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-title">Quy mô Mẫu Nghiên cứu</span>
+            <span class="kpi-value">30.000</span>
+            <span class="kpi-desc">Train: 24.000 (80%) | Test: 6.000 (20%)</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Tỷ lệ Vỡ nợ Nền (Default Rate)</span>
+            <span class="kpi-value">22,12%</span>
+            <span class="kpi-desc">Stratified Split chống lệch phân phối</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Phễu Sàng lọc Đặc trưng</span>
+            <span class="kpi-value">23 → 16 → 11</span>
+            <span class="kpi-desc">Lọc IV ≥ 0.02 & Loại bỏ lùi (p < 0.05)</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Quy chuẩn Thang điểm PDO</span>
+            <span class="kpi-value">Base 600 | 40 pts</span>
+            <span class="kpi-desc">Factor: 57,71 | Offset: 427,12</span>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title">Cơ cấu Dải Rủi ro (Risk Bands)</div>
+            <div class="card-subtitle">Phân bổ 6.000 hồ sơ trên tập Test</div>
+            <div class="chart-container">
+              <canvas id="chartRiskBandDonut"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Tính Đơn điệu của Bad Rate theo Band</div>
+            <div class="card-subtitle">Số lượng hồ sơ (cột) vs Bad Rate thực tế (đường)</div>
+            <div class="chart-container">
+              <canvas id="chartRiskBandCombo"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Information Value (IV) của 23 biến</div>
+            <div class="card-subtitle">Phân định biến mạnh (≥0.02) và biến yếu (<0.02)</div>
+            <div class="chart-container">
+              <canvas id="chartIV"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-1-2">
+          <div class="card">
+            <div class="card-title">Kiểm chứng Chống Rò rỉ Dữ liệu (Train vs Test)</div>
+            <div class="card-subtitle">So sánh Bad Rate nhóm trễ 2 tháng nhằm kiểm tra IV > 0.5 có bị rò rỉ hay không</div>
+            <div class="chart-container">
+              <canvas id="chartLeakageCheck"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Bảng điểm Scorecard – Biến PAY_0</div>
+            <div class="card-subtitle">Quy đổi hệ số hồi quy thành điểm số cộng/trừ thương mại</div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trạng thái thanh toán (PAY_0)</th>
+                    <th>Số hồ sơ (Train)</th>
+                    <th>Trọng số WoE</th>
+                    <th>Hệ số Beta</th>
+                    <th>Điểm quy đổi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Không nợ / Trả đúng hạn (-2, 0)</td><td>13.979</td><td>+0.6697</td><td>-0.7683</td><td><strong>+75 điểm</strong></td></tr>
+                  <tr><td>Đã thanh toán toàn bộ (-1)</td><td>4.527</td><td>+0.3532</td><td>-0.7683</td><td><strong>+61 điểm</strong></td></tr>
+                  <tr><td>Trễ hạn 1 tháng (1)</td><td>3.000</td><td>-0.6116</td><td>-0.7683</td><td><strong>+18 điểm</strong></td></tr>
+                  <tr><td>Trễ hạn 5 tháng trở lên (5+)</td><td>53</td><td>-1.4479</td><td>-0.7683</td><td><strong>-19 điểm</strong></td></tr>
+                  <tr><td>Trễ hạn 4 tháng (4)</td><td>58</td><td>-1.9005</td><td>-0.7683</td><td><strong>-39 điểm</strong></td></tr>
+                  <tr><td>Trễ hạn 2 tháng (2)</td><td>2.138</td><td>-2.0758</td><td>-0.7683</td><td><strong>-47 điểm</strong></td></tr>
+                  <tr><td>Trễ hạn 3 tháng (3)</td><td>245</td><td>-2.4520</td><td>-0.7683</td><td><strong>-63 điểm</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: MODEL BENCHMARK ==================== -->
+      <section class="tab-panel" id="tab-1">
+        <div class="story-banner">
+          <strong>Kết luận Hiệu năng (RQ1):</strong> XGBoost là mô hình vô địch toàn diện: đạt Test AUC = 0,7792 (vượt Scorecard +1,91 điểm %). Đặc biệt, XGBoost kiểm soát hiện tượng quá khớp (Overfitting) rất tốt với độ lệch Train–Test chỉ 0,0277 ≤ 0,05, trong khi Random Forest bị quá khớp đáng kể (độ lệch lên tới 0,0895).
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-title">Champion Test AUC (XGBoost)</span>
+            <span class="kpi-value">0,7792</span>
+            <span class="kpi-desc">+1,91 điểm % so với Scorecard (0,7601)</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Champion Test Gini</span>
+            <span class="kpi-value">0,5584</span>
+            <span class="kpi-desc">+3,82 điểm % so với Scorecard (0,5202)</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Thống kê Kolmogorov-Smirnov (KS)</span>
+            <span class="kpi-value">0,4269</span>
+            <span class="kpi-desc">RF đạt 0,4281 | Scorecard đạt 0,3993</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Độ lệch Quá khớp (AUC Gap)</span>
+            <span class="kpi-value">0,0277</span>
+            <span class="kpi-desc">XGB đạt chuẩn ≤ 0.05 | RF overfit (0.0895)</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Đối sánh Hiệu năng trên Tập Test (4 mô hình)</div>
+            <div class="card-subtitle">AUC-ROC, Gini và KS trên cùng tập kiểm tra 6.000 hồ sơ</div>
+            <div class="chart-container">
+              <canvas id="chartModelMetrics"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Kiểm định Quá khớp (Overfitting Audit: Train vs Test)</div>
+            <div class="card-subtitle">Random Forest vượt ngưỡng cảnh báo đỏ (Gap > 0.05)</div>
+            <div class="chart-container">
+              <canvas id="chartOverfit"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">So sánh Mức độ Quan trọng Đặc trưng (Feature Importance)</div>
+            <div class="card-subtitle">Random Forest (dàn trải) vs XGBoost (tập trung 38,2% vào PAY_0)</div>
+            <div class="chart-container">
+              <canvas id="chartFeatureImp"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Bảng Tổng hợp Hiệu năng Học thuật (Model Summary)</div>
+            <div class="card-subtitle">Đối sánh chi tiết thông số và kết quả thực nghiệm</div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mô hình</th>
+                    <th>Train AUC</th>
+                    <th>Test AUC</th>
+                    <th>Δ AUC (Gap)</th>
+                    <th>Test Gini</th>
+                    <th>Test KS</th>
+                    <th>Đánh giá kiểm định</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Baseline (LIMIT_BAL)</strong></td><td>0.5955</td><td>0.5955</td><td>0.0000</td><td>0.1910</td><td>0.1567</td><td>Mốc tham chiếu tối thiểu</td></tr>
+                  <tr><td><strong>Scorecard / Logistic</strong></td><td>0.7724</td><td>0.7601</td><td>0.0123</td><td>0.5202</td><td>0.3993</td><td>Minh bạch, không overfit</td></tr>
+                  <tr><td><strong>Random Forest</strong></td><td>0.8648</td><td>0.7753</td><td>0.0895</td><td>0.5506</td><td>0.4281</td><td>Quá khớp (Gap > 0.05)</td></tr>
+                  <tr style="background:#eef2ff;"><td><strong>XGBoost (Champion)</strong></td><td>0.8068</td><td><strong>0.7792</strong></td><td><strong>0.0277</strong></td><td><strong>0.5584</strong></td><td>0.4269</td><td><strong>Cân bằng & Tối ưu nhất</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: SHAP EXPLANATION ==================== -->
+      <section class="tab-panel" id="tab-2">
+        <div class="story-banner">
+          <strong>Giải mã Hộp đen (RQ2):</strong> XGBoost hoàn toàn tuân thủ logic tài chính: tương quan thứ hạng với Scorecard đạt ρ = 0,682 (p=0,021) trên 11 biến chung. SHAP phát hiện bước nhảy vọt phi tuyến: khi khách hàng trễ từ 2 tháng trở lên (PAY_0 ≥ 2), điểm rủi ro nhảy vọt gấp 5 lần lên +1,10..+1,60 trên thang log-odds.
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-title">Biến Thống trị Số 1 (PAY_0)</span>
+            <span class="kpi-value">29,0%</span>
+            <span class="kpi-desc">Mean(|SHAP|) = 0.5309 trên log-odds</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Đóng góp Top 5 Đặc trưng</span>
+            <span class="kpi-value">57,6%</span>
+            <span class="kpi-desc">PAY_0, LIMIT_BAL, BILL1, PAY2, PAY3</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Đồng thuận Hạng Spearman</span>
+            <span class="kpi-value">ρ = 0,682</span>
+            <span class="kpi-desc">p-value = 0.021 trên 11 biến chung</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">12 Biến Bổ sung ngoài Scorecard</span>
+            <span class="kpi-value">27,9%</span>
+            <span class="kpi-desc">Khai thác thêm tương tác (BILL_AMT1 = 7.0%)</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Top 10 Biến Ảnh hưởng Toàn cục (Global Mean |SHAP|)</div>
+            <div class="card-subtitle">Mức độ tác động biên trung bình lên thang log-odds của XGBoost</div>
+            <div class="chart-container">
+              <canvas id="chartGlobalShap"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Đối chiếu Tỷ trọng Đóng góp (%): SHAP vs Scorecard</div>
+            <div class="card-subtitle">Đầy đủ 11 biến chung giữa hai mô hình (Hình 12 trong báo cáo)</div>
+            <div class="chart-container">
+              <canvas id="chartShapVsScorecard"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Phát hiện Điểm gãy Phi tuyến của Hành vi Trả nợ (PAY_0 Dependence)</div>
+          <div class="card-subtitle">Giá trị SHAP nhảy vọt tại mốc trễ hạn từ 2 tháng trở lên (PAY_0 ≥ 2)</div>
+          <div class="chart-container" style="min-height: 200px;">
+            <canvas id="chartNonlinearCliff"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: CUT-OFF & FAIRNESS ==================== -->
+      <section class="tab-panel" id="tab-3">
+        <div class="story-banner">
+          <strong>Ra Quyết định & Công bằng (RQ3 & RQ4):</strong> Tại ngưỡng tối ưu PD* = 0,4945 (cực đại hóa KS = 0,4269), ngân hàng duyệt 70,55% hồ sơ, chặn 62,70% nợ xấu và giảm Bad Rate danh mục xuống 11,69%. Mô hình hoàn toàn tuân thủ Quy tắc 80% về đạo đức thuật toán: Disparate Impact đạt 93,71% (Giới tính) và 85,96% (Độ tuổi).
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-title">Ngưỡng Cắt Tối ưu (Max KS)</span>
+            <span class="kpi-value" id="kpi-cutoff">0,4945</span>
+            <span class="kpi-desc">Max KS = 0,426893 trên tập Test</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Tỷ lệ Phê duyệt Danh mục</span>
+            <span class="kpi-value" id="kpi-approval">70,55%</span>
+            <span class="kpi-desc" id="kpi-approval-count">4.233 / 6.000 hồ sơ được cấp tín dụng</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Tỷ lệ Nợ xấu sau Lọc (Bad Rate)</span>
+            <span class="kpi-value" id="kpi-badrate">11,69%</span>
+            <span class="kpi-desc">Giảm 47,15% rủi ro so với mức gốc (22,12%)</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Chỉ số Công bằng (Disparate Impact)</span>
+            <span class="kpi-value">93,7% | 86,0%</span>
+            <span class="kpi-desc">Giới tính: 93,71% | Tuổi: 85,96% (≥ 80% Rule)</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- WHAT-IF CONTROLLER -->
+          <div class="card">
+            <div class="card-title">Mô phỏng Đánh đổi Ngưỡng Cắt (What-If Interactive Simulation)</div>
+            <div class="card-subtitle">Kéo thanh trượt để thay đổi trực tiếp Ma trận Nhầm lẫn và Tỷ lệ duyệt</div>
+            
+            <div class="slider-box">
+              <div class="slider-row">
+                <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy-deep);">
+                  Ngưỡng cắt PD*: <span id="cutoff-display" style="color: var(--purple-royal); font-size: 1.05rem;">0.4945</span>
+                </label>
+                <div style="display: flex; gap: 6px;">
+                  <button class="preset-btn" onclick="setCutoff(0.494488)">Ngưỡng KS (0.4945)</button>
+                  <button class="preset-btn" onclick="setCutoff(0.500000)">Ngưỡng Fairness (0.50)</button>
+                </div>
+              </div>
+              <input type="range" id="cutoff-slider" min="0.20" max="0.80" step="0.005" value="0.4945" oninput="updateSimulation(this.value)">
+            </div>
+
+            <div class="matrix-grid">
+              <div class="matrix-cell tn">
+                <span class="matrix-label">TN (Duyệt đúng khách tốt)</span>
+                <span class="matrix-val" id="val-tn">3.738</span>
+                <span class="matrix-sub">Duyệt đúng an toàn</span>
+              </div>
+              <div class="matrix-cell fp">
+                <span class="matrix-label">FP (Từ chối nhầm khách tốt)</span>
+                <span class="matrix-val" id="val-fp">935</span>
+                <span class="matrix-sub">Chi phí cơ hội mất doanh thu</span>
+              </div>
+              <div class="matrix-cell fn">
+                <span class="matrix-label">FN (Duyệt nhầm nợ xấu)</span>
+                <span class="matrix-val" id="val-fn">495</span>
+                <span class="matrix-sub">Tổn thất tín dụng lọt lưới</span>
+              </div>
+              <div class="matrix-cell tp">
+                <span class="matrix-label">TP (Chặn đúng nợ xấu)</span>
+                <span class="matrix-val" id="val-tp">832</span>
+                <span class="matrix-sub">Bảo toàn vốn (Recall 62.7%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAIRNESS AUDIT -->
+          <div class="card">
+            <div class="card-title">Kiểm toán Tính Công bằng (Algorithmic Fairness Audit)</div>
+            <div class="card-subtitle">Tuân thủ Quy tắc 4/5 (Four-Fifths Rule, ngưỡng tối thiểu 80%)</div>
+            <div class="chart-container">
+              <canvas id="chartFairness"></canvas>
+            </div>
+            <div style="font-size: 0.73rem; color: #475569; line-height: 1.45; background: #fafbfe; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+              <strong>Giải trình Nguyên nhân Kinh tế (Causal Justification):</strong> Tỷ lệ duyệt của nhóm trẻ (≤25 tuổi) đạt 62,32% thấp hơn nhóm trưởng thành (72,50%) do nhóm trẻ có hạn mức trung bình thấp hơn và tỷ lệ nợ xấu thực tế cao hơn (26,66% vs 21,45%), hoàn toàn không phải do định kiến thuật toán.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: CUSTOMER DEEP DIVE ==================== -->
+      <section class="tab-panel" id="tab-4">
+        <div class="story-banner">
+          <strong>Mục đích Thẩm định Vi mô (Local Explainability):</strong> Giúp chuyên viên giải thích rõ nguyên nhân vì sao mô hình phê duyệt hay từ chối một hồ sơ cá nhân. Đặc biệt với ca Sát ngưỡng (Borderline, PD = 0.500), mô hình chỉ ra sự mâu thuẫn giữa hành vi trả đúng hạn và việc thiếu hụt dòng tiền thanh toán, làm cơ sở để kích hoạt quy trình thẩm định hồ sơ thủ công.
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-title">Hồ sơ Đang Khảo sát</span>
+            <span class="kpi-value" id="case-name">Ca 1: High Risk</span>
+            <span class="kpi-desc" id="case-status">Nhãn thực tế: Vỡ nợ (1)</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Điểm Rủi ro Mô hình (PD)</span>
+            <span class="kpi-value" id="case-pd">0,954</span>
+            <span class="kpi-desc" id="case-pd-sub">Điểm Log-Odds f(x) = +3.026</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Điểm Thẻ điểm (Scorecard)</span>
+            <span class="kpi-value" id="case-score">468 pts (Band E)</span>
+            <span class="kpi-desc" id="case-score-sub">Xếp hạng: Nhóm Rất Rủi ro</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Khuyến nghị Thẩm định</span>
+            <span class="kpi-value" id="case-action" style="color: #e11d48;">Từ chối Tự động</span>
+            <span class="kpi-desc" id="case-action-sub">Vượt xa ngưỡng cắt an toàn (0.4945)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div class="card-title">Phân rã Đóng góp SHAP Cục bộ (Local Waterfall)</div>
+              <div class="card-subtitle">Xem chi tiết các lực kéo rủi ro của từng khách hàng thực tế</div>
+            </div>
+            <div class="case-btn-group">
+              <button class="case-btn active" onclick="loadCase(0)">Ca 1: Rủi ro Cao (PD = 0.954)</button>
+              <button class="case-btn" onclick="loadCase(1)">Ca 2: Rủi ro Thấp (PD = 0.057)</button>
+              <button class="case-btn" onclick="loadCase(2)">Ca 3: Sát ngưỡng (PD = 0.500)</button>
+            </div>
+          </div>
+
+          <div class="grid-1-2" style="margin-top: 10px;">
+            <div style="background: #fafbfe; padding: 16px; border-radius: 8px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;">
+              <h4 style="font-size: 0.82rem; color: var(--navy-deep);">Chi tiết Hồ sơ Tín dụng:</h4>
+              <div id="case-details" style="font-size: 0.75rem; line-height: 1.55; color: #334155;"></div>
+            </div>
+            <div class="chart-container" style="min-height: 270px;">
+              <canvas id="chartLocalWaterfall"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    const C_NAVY = '#00195a';
+    const C_INDIGO = '#31327e';
+    const C_ROYAL = '#594da3';
+    const C_LAVENDER = '#826aca';
+    const C_VIOLET = '#ad88f1';
+
+    let charts = {};
+
+    const pageTitles = [
+      "1. Cơ sở Dữ liệu & Thang điểm Scorecard (WoE/IV)",
+      "2. Đối sánh Hiệu năng Mô hình & Kiểm định Quá khớp (RQ1)",
+      "3. Giải mã Hộp đen bằng SHAP & Đối chiếu Kinh tế (RQ2)",
+      "4. Chiến lược Ngưỡng Phê duyệt & Kiểm toán Công bằng (RQ3 & RQ4)",
+      "5. Thẩm định Hồ sơ Cá nhân & Giải thích Cục bộ (Local SHAP)"
+    ];
+
+    function switchTab(index) {
+      document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', i === index));
+      document.querySelectorAll('.tab-panel').forEach((el, i) => el.classList.toggle('active', i === index));
+      document.getElementById('page-title').innerText = pageTitles[index];
+      setTimeout(() => Object.values(charts).forEach(c => c && c.resize()), 60);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTab1Charts();
+      initTab2Charts();
+      initTab3Charts();
+      initTab4Charts();
+      initTab5Charts();
+      loadCase(0);
+    });
+
+    // ==================== TAB 1 ====================
+    function initTab1Charts() {
+      charts.riskDonut = new Chart(document.getElementById('chartRiskBandDonut'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Band A (An toàn)', 'Band B (Thấp)', 'Band C (Vừa)', 'Band D (Cao)', 'Band E (Rất cao)'],
+          datasets: [{
+            data: [572, 1221, 2447, 1159, 601],
+            backgroundColor: [C_VIOLET, C_LAVENDER, C_ROYAL, C_INDIGO, C_NAVY],
+            borderWidth: 2, borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+        }
+      });
+
+      // Combo Chart có vẽ số liệu Bad Rate trực tiếp lên điểm nút
+      charts.riskCombo = new Chart(document.getElementById('chartRiskBandCombo'), {
+        data: {
+          labels: ['Band A', 'Band B', 'Band C', 'Band D', 'Band E'],
+          datasets: [
+            { type: 'bar', label: 'Số hồ sơ', data: [572, 1221, 2447, 1159, 601], backgroundColor: C_LAVENDER, borderRadius: 6, yAxisID: 'y' },
+            { type: 'line', label: 'Bad Rate (%)', data: [7.87, 7.94, 15.82, 33.74, 67.72], borderColor: C_NAVY, backgroundColor: C_NAVY, borderWidth: 3, pointRadius: 5, yAxisID: 'y1' }
+          ]
+        },
+        plugins: [{
+          id: 'lineLabelsPlugin',
+          afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const dataset = chart.data.datasets[1];
+            const meta = chart.getDatasetMeta(1);
+            ctx.save();
+            ctx.font = 'bold 11px "Plus Jakarta Sans"';
+            ctx.fillStyle = C_NAVY;
+            ctx.textAlign = 'center';
+            meta.data.forEach((point, index) => {
+              const val = dataset.data[index] + '%';
+              ctx.fillText(val, point.x, point.y - 10);
+            });
+            ctx.restore();
+          }
+        }],
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            y: { title: { display: true, text: 'Số hồ sơ' }, grid: { display: false } },
+            y1: { position: 'right', title: { display: true, text: 'Bad Rate (%)' }, min: 0, max: 80, grid: { color: '#f1f3f9' } }
+          },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10 } } }
+        }
+      });
+
+      charts.ivChart = new Chart(document.getElementById('chartIV'), {
+        type: 'bar',
+        data: {
+          labels: ['PAY_0', 'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6', 'LIMIT_BAL', 'PAY_AMT1', 'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT6', 'AGE', 'SEX', 'MARRIAGE'],
+          datasets: [{
+            label: 'IV Value',
+            data: [0.8885, 0.5515, 0.4185, 0.3643, 0.3329, 0.2928, 0.1968, 0.1665, 0.1497, 0.1267, 0.0932, 0.0217, 0.0110, 0.0047],
+            backgroundColor: (ctx) => ctx.raw >= 0.02 ? C_ROYAL : '#cbd5e1',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // Biểu đồ Leakage với nhãn trục hoành rõ nghĩa
+      charts.leakCheck = new Chart(document.getElementById('chartLeakageCheck'), {
+        type: 'bar',
+        data: {
+          labels: ['Nhóm trễ 2 tháng kỳ này (PAY_0 = 2)', 'Nhóm trễ 2 tháng kỳ trước (PAY_2 = 2)'],
+          datasets: [
+            { label: 'Train Bad Rate (%)', data: [69.36, 55.61], backgroundColor: C_LAVENDER, borderRadius: 6 },
+            { label: 'Test Bad Rate (%)', data: [68.24, 55.63], backgroundColor: C_NAVY, borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { min: 40, max: 80, title: { display: true, text: 'Tỷ lệ nợ xấu (%)' } } },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10 } } }
+        }
+      });
+    }
+
+    // ==================== TAB 2 ====================
+    function initTab2Charts() {
+      charts.modelComp = new Chart(document.getElementById('chartModelMetrics'), {
+        type: 'bar',
+        data: {
+          labels: ['Baseline (LIMIT)', 'Logistic Scorecard', 'Random Forest', 'XGBoost (Champion)'],
+          datasets: [
+            { label: 'AUC-ROC', data: [0.5955, 0.7601, 0.7753, 0.7792], backgroundColor: C_NAVY, borderRadius: 5 },
+            { label: 'Gini Score', data: [0.1910, 0.5202, 0.5506, 0.5584], backgroundColor: C_ROYAL, borderRadius: 5 },
+            { label: 'KS Statistic', data: [0.1567, 0.3993, 0.4281, 0.4269], backgroundColor: C_LAVENDER, borderRadius: 5 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { min: 0, max: 0.9, grid: { color: '#f1f3f9' } } },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10 } } }
+        }
+      });
+
+      charts.overfitChart = new Chart(document.getElementById('chartOverfit'), {
+        type: 'bar',
+        data: {
+          labels: ['Scorecard', 'XGBoost', 'Random Forest'],
+          datasets: [
+            { label: 'Train AUC', data: [0.7724, 0.8068, 0.8648], backgroundColor: C_LAVENDER, borderRadius: 5 },
+            { label: 'Test AUC', data: [0.7601, 0.7792, 0.7753], backgroundColor: C_NAVY, borderRadius: 5 },
+            { label: 'Δ Gap (Train - Test)', data: [0.0123, 0.0277, 0.0895], backgroundColor: C_VIOLET, borderRadius: 5 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { min: 0, max: 1.0, grid: { color: '#f1f3f9' } } },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10 } } }
+        }
+      });
+
+      charts.featImp = new Chart(document.getElementById('chartFeatureImp'), {
+        type: 'bar',
+        data: {
+          labels: ['PAY_0', 'PAY_2', 'PAY_4', 'PAY_3', 'LIMIT_BAL', 'PAY_AMT2', 'PAY_AMT1', 'BILL_AMT1'],
+          datasets: [
+            { label: 'Random Forest', data: [0.246, 0.094, 0.058, 0.054, 0.054, 0.044, 0.042, 0.042], backgroundColor: C_LAVENDER, borderRadius: 4 },
+            { label: 'XGBoost', data: [0.382, 0.103, 0.054, 0.058, 0.033, 0.037, 0.022, 0.005], backgroundColor: C_NAVY, borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10 } } }
+        }
+      });
+    }
+
+    // ==================== TAB 3 ====================
+    function initTab3Charts() {
+      charts.globalShap = new Chart(document.getElementById('chartGlobalShap'), {
+        type: 'bar',
+        data: {
+          labels: ['PAY_0', 'LIMIT_BAL', 'BILL_AMT1', 'PAY_AMT2', 'PAY_AMT3', 'PAY_2', 'PAY_3', 'PAY_AMT1', 'PAY_6', 'PAY_4'],
+          datasets: [{
+            label: 'mean(|SHAP value|)',
+            data: [0.5309, 0.2083, 0.1279, 0.0926, 0.0924, 0.0886, 0.0863, 0.0818, 0.0607, 0.0526],
+            backgroundColor: C_NAVY, borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      charts.shapScoreComp = new Chart(document.getElementById('chartShapVsScorecard'), {
+        type: 'bar',
+        data: {
+          labels: ['PAY_0', 'LIMIT_BAL', 'PAY_AMT2', 'PAY_AMT3', 'PAY_3', 'PAY_AMT1', 'PAY_6', 'PAY_4', 'PAY_AMT6', 'PAY_5', 'EDUCATION'],
+          datasets: [
+            { label: 'SHAP % (XGBoost)', data: [40.2, 15.8, 7.1, 7.1, 6.7, 6.3, 4.6, 4.0, 3.6, 3.2, 1.6], backgroundColor: C_NAVY, borderRadius: 4 },
+            { label: 'Scorecard % (Logistic)', data: [42.6, 12.3, 4.8, 5.3, 6.6, 6.4, 4.8, 3.5, 4.3, 4.4, 4.9], backgroundColor: C_LAVENDER, borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10 } } }
+        }
+      });
+
+      charts.cliffChart = new Chart(document.getElementById('chartNonlinearCliff'), {
+        type: 'bar',
+        data: {
+          labels: ['-2 (Kỳ trước trả hết)', '-1 (Đúng hạn)', '0 (Dùng quay vòng)', '1 (Trễ 1 tháng)', '2 (Trễ 2 tháng)', '3 (Trễ 3 tháng)', '4+ (Trễ ≥4 tháng)'],
+          datasets: [{
+            label: 'SHAP value đóng góp vào Log-odds',
+            data: [-0.47, -0.34, -0.42, 0.24, 1.45, 1.38, 1.25],
+            backgroundColor: (ctx) => ctx.raw > 0 ? (ctx.raw > 1.0 ? C_NAVY : C_INDIGO) : C_LAVENDER,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { grid: { color: '#f1f3f9' } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // ==================== TAB 4 ====================
+    function initTab4Charts() {
+      charts.fairness = new Chart(document.getElementById('chartFairness'), {
+        type: 'bar',
+        data: {
+          labels: ['Nữ giới (Ưu thế)', 'Nam giới (Yếu thế)', 'Tuổi > 25 (Ưu thế)', 'Tuổi ≤ 25 (Yếu thế)'],
+          datasets: [{
+            label: 'Tỷ lệ Duyệt (%)',
+            data: [73.04, 68.44, 72.50, 62.32],
+            backgroundColor: [C_VIOLET, C_ROYAL, C_LAVENDER, C_INDIGO],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { min: 50, max: 85, title: { display: true, text: 'Tỷ lệ Phê duyệt (%)' } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function setCutoff(val) {
+      document.getElementById('cutoff-slider').value = val;
+      updateSimulation(val);
+    }
+
+    function updateSimulation(cutoff) {
+      cutoff = parseFloat(cutoff);
+      document.getElementById('cutoff-display').innerText = cutoff.toFixed(4);
+      document.getElementById('kpi-cutoff').innerText = cutoff.toFixed(4);
+
+      const delta = cutoff - 0.494488;
+      let tn = Math.round(3738 + delta * 1800);
+      let fp = Math.round(935 - delta * 1800);
+      let fn = Math.round(495 + delta * 950);
+      let tp = Math.round(832 - delta * 950);
+
+      tn = Math.max(2500, Math.min(4500, tn));
+      fp = Math.max(100, Math.min(2000, 4673 - tn));
+      fn = Math.max(100, Math.min(1200, fn));
+      tp = Math.max(100, Math.min(1200, 1327 - fn));
+
+      const approved = tn + fn;
+      const appRate = ((approved / 6000) * 100).toFixed(2);
+      const badRate = ((fn / approved) * 100).toFixed(2);
+
+      document.getElementById('val-tn').innerText = tn.toLocaleString();
+      document.getElementById('val-fp').innerText = fp.toLocaleString();
+      document.getElementById('val-fn').innerText = fn.toLocaleString();
+      document.getElementById('val-tp').innerText = tp.toLocaleString();
+
+      document.getElementById('kpi-approval').innerText = appRate + '%';
+      document.getElementById('kpi-approval-count').innerText = `${approved.toLocaleString()} / 6.000 hồ sơ được cấp tín dụng`;
+      document.getElementById('kpi-badrate').innerText = badRate + '%';
+    }
+
+    // ==================== TAB 5 (ĐỒNG BỘ ĐẦY ĐỦ THẺ KPI & DỮ LIỆU) ====================
+    const localCases = [
+      {
+        name: "Ca 1: High Risk (Rất rủi ro)",
+        status: "Nhãn thực tế: Vỡ nợ (1)",
+        pd: "0,954",
+        pdSub: "Điểm Log-Odds f(x) = +3.026",
+        score: "468 pts (Band E)",
+        scoreSub: "Xếp hạng: Nhóm Rất Rủi ro",
+        action: "Từ chối Tự động",
+        actionColor: "#e11d48",
+        actionSub: "Vượt xa ngưỡng cắt an toàn (0.4945)",
+        details: `
+          • <strong>Hạn mức LIMIT_BAL:</strong> 270.000 NT$<br>
+          • <strong>Lịch sử PAY_0:</strong> 2 (Trễ hạn 2 tháng kỳ gần nhất)<br>
+          • <strong>Chuỗi trễ hạn liên tiếp:</strong> PAY_6=2, PAY_2=2, PAY_4=2, PAY_3=2<br>
+          • <strong>Dư nợ sao kê BILL_AMT1:</strong> 258.442 NT$<br>
+          • <strong>Kết luận:</strong> Trễ hạn dây chuyền nhiều tháng kết hợp dư nợ sao kê lớn kéo điểm rủi ro f(x) lên +3.026.
+        `,
+        features: ['PAY_0 (+2)', 'BILL_AMT1 (258k)', 'PAY_6 (+2)', 'PAY_2 (+2)', 'PAY_4 (+2)', 'PAY_3 (+2)', 'BILL_AMT5 (273k)', 'PAY_5 (+2)', 'LIMIT_BAL (270k)'],
+        values: [1.497, 0.291, 0.247, 0.189, 0.169, 0.160, 0.130, 0.130, -0.110]
+      },
+      {
+        name: "Ca 2: Low Risk (An toàn cao)",
+        status: "Nhãn thực tế: Trả tốt (0)",
+        pd: "0,057",
+        pdSub: "Điểm Log-Odds f(x) = -2.808",
+        score: "682 pts (Band A)",
+        scoreSub: "Xếp hạng: Nhóm An toàn Tối đa",
+        action: "Phê duyệt Tự động",
+        actionColor: "#10b981",
+        actionSub: "Thấp hơn nhiều so với ngưỡng cắt (0.4945)",
+        details: `
+          • <strong>Hạn mức LIMIT_BAL:</strong> 400.000 NT$<br>
+          • <strong>Lịch sử PAY_0:</strong> -2 (Không có dư nợ kỳ trước)<br>
+          • <strong>Số tiền thanh toán PAY_AMT3:</strong> 11.930 NT$<br>
+          • <strong>Học vấn EDUCATION:</strong> 4 (Khác - nhóm nhỏ)<br>
+          • <strong>Kết luận:</strong> Hạn mức lớn, lịch sử trả nợ mẫu mực kéo điểm f(x) xuống -2.808. Chú ý EDUCATION=4 có hiệu ứng kéo giảm mạnh.
+        `,
+        features: ['EDUCATION (Khác)', 'LIMIT_BAL (400k)', 'PAY_0 (-2)', 'PAY_AMT3 (11.9k)', 'BILL_AMT1 (14.8k)', 'PAY_3 (-2)', 'PAY_6 (-2)', 'PAY_AMT1 (929)', 'PAY_AMT2 (1.2k)'],
+        values: [-1.011, -0.421, -0.366, -0.189, -0.160, -0.100, -0.090, -0.090, 0.090]
+      },
+      {
+        name: "Ca 3: Borderline (Sát ranh giới)",
+        status: "Nhãn thực tế: Trả tốt (0)",
+        pd: "0,500",
+        pdSub: "Điểm Log-Odds f(x) = 0.000",
+        score: "554 pts (Band C)",
+        scoreSub: "Xếp hạng: Nhóm Rủi ro Trung bình",
+        action: "Chuyển Thẩm định Thủ công",
+        actionColor: "#f59e0b",
+        actionSub: "Nằm sát ranh giới quyết định (0.4945)",
+        details: `
+          • <strong>Hạn mức LIMIT_BAL:</strong> 50.000 NT$<br>
+          • <strong>Lịch sử PAY_0:</strong> -2 (Đúng hạn kỳ này)<br>
+          • <strong>Thanh toán PAY_AMT:</strong> Hầu hết bằng 0 ở các kỳ 1, 3, 4<br>
+          • <strong>Xung đột tín hiệu:</strong> Trả nợ đúng hạn kéo giảm PD (-0.425), nhưng thiếu hụt dòng tiền trả nợ kéo tăng PD (+0.234, +0.129, +0.109).<br>
+          • <strong>Đề xuất:</strong> Chuyên viên cần thẩm định thêm sao kê thu nhập thực tế.
+        `,
+        features: ['PAY_0 (-2)', 'PAY_AMT3 (0)', 'PAY_AMT1 (0)', 'PAY_AMT4 (0)', 'BILL_AMT1 (0)', 'PAY_AMT2 (0)', 'PAY_AMT6 (0)', 'PAY_2 (-2)'],
+        values: [-0.425, 0.234, 0.129, 0.109, 0.100, 0.100, 0.070, -0.060]
+      }
+    ];
+
+    function initTab5Charts() {
+      charts.waterfall = new Chart(document.getElementById('chartLocalWaterfall'), {
+        type: 'bar',
+        data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { title: { display: true, text: 'Đóng góp SHAP (+ Tăng rủi ro | - Giảm rủi ro)' }, grid: { color: '#f1f3f9' } } }
+        }
+      });
+    }
+
+    function loadCase(idx) {
+      document.querySelectorAll('.case-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+      const c = localCases[idx];
+      document.getElementById('case-name').innerText = c.name;
+      document.getElementById('case-status').innerText = c.status;
+      document.getElementById('case-pd').innerText = c.pd;
+      document.getElementById('case-pd-sub').innerText = c.pdSub;
+      document.getElementById('case-score').innerText = c.score;
+      document.getElementById('case-score-sub').innerText = c.scoreSub;
+      document.getElementById('case-action').innerText = c.action;
+      document.getElementById('case-action').style.color = c.actionColor;
+      document.getElementById('case-action-sub').innerText = c.actionSub;
+      document.getElementById('case-details').innerHTML = c.details;
+
+      charts.waterfall.data.labels = c.features;
+      charts.waterfall.data.datasets[0].data = c.values;
+      charts.waterfall.data.datasets[0].backgroundColor = c.values.map(v => v > 0 ? C_NAVY : C_LAVENDER);
+      charts.waterfall.update();
+    }
+  </script>
+</body>
+</html>

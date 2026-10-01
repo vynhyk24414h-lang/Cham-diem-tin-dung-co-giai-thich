@@ -1,12 +1,21 @@
-#danh sách các thư viện cần thiết
+# Xử lý dữ liệu & tính toán khoa học
 pandas
 numpy
+openpyxl
+xlrd
+ucimlrepo
+
+# Thống kê & Học máy
+scipy
+statsmodels
+scikit-learn>=1.5.0
+xgboost>=2.0.0
+
+# Trực quan hóa & Giải thích mô hình
 matplotlib
 seaborn
-jupyter
-ucimlrepo #gói chính thức của UCI để tải dữ liệu
-openpyxl #hỗ trợ đọc/ghi file Excel nếu cần
-xlrd #"dịch" các file Excel định dạng cũ (đuôi .xls)
-scikit-learn==1.7.2
-xgboost==3.4.1
 shap
+
+# Giao diện Dashboard & Môi trường chạy
+streamlit
+jupyter

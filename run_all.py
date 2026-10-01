@@ -3,6 +3,7 @@ import sys
 import os
 import json
 import pandas as pd
+import webbrowser
 
 # Chia 13 file code thành 5 Giai đoạn nghiệp vụ khớp với cấu trúc Báo cáo Word
 PHASES = [
@@ -50,6 +51,42 @@ PHASES = [
         ]
     }
 ]
+
+def launch_dashboard():
+    """Khởi chạy Dashboard"""
+    print("\n" + "=" * 78)
+    print(" 🌐 KHỞI CHẠY DASHBOARD BÁO CÁO TRỰC QUAN")
+    print("=" * 78)
+    
+    html_file = "dashboard.html"
+    
+    # 1. Ưu tiên số 1: Mở Dashboard HTML
+    if os.path.exists(html_file):
+        html_path = os.path.abspath(html_file)
+        print(f"   ▶️ Đang mở Dashboard chính (HTML): {html_path}")
+        try:
+            webbrowser.open(f"file://{html_path}")
+            print("   ✅ Mở Dashboard HTML thành công trên trình duyệt mặc định!")
+            print("   💡 (Mẹo: Giữ file HTML này để chiếu trực tiếp cho giảng viên)")
+            return
+        except Exception as e:
+            print(f"   ⚠️ Không thể tự mở trình duyệt ({e}). Đang chuyển sang phương án Streamlit...")
+    else:
+        print(f"   ⚠️ Không tìm thấy file '{html_file}'. Đang chuyển sang phương án Streamlit...")
+
+    # 2. Phương án dự phòng (Fallback): Mở Streamlit app.py
+    streamlit_app = "app.py"
+    if os.path.exists(streamlit_app):
+        print(f"\n   🔄 Kích hoạt Dashboard dự phòng: Streamlit ({streamlit_app})...")
+        print("   👉 Đang khởi chạy server local, vui lòng đợi trong giây lát...")
+        try:
+            subprocess.run([sys.executable, "-m", "streamlit", "run", streamlit_app], check=True)
+        except KeyboardInterrupt:
+            print("\n   🛑 Đã dừng Dashboard Streamlit.")
+        except Exception as e:
+            print(f"   ❌ Lỗi khi khởi chạy Streamlit: {e}")
+    else:
+        print(f"   ❌ Không tìm thấy cả '{html_file}' lẫn '{streamlit_app}' trong thư mục dự án.")
 
 def print_executive_summary():
     """Đọc dữ liệu thực tế từ thư mục reports/ và in ra Bản tóm tắt dễ hiểu cho người mới"""
@@ -105,14 +142,18 @@ def main():
     print("█" * 78)
     
     print("\nChọn chế độ thực thi:")
-    print("  [1] Chạy trình diễn nhanh (~20 giây): Sử dụng sẵn model .pkl đã huấn luyện trong 'models/'")
-    print("  [2] Chạy toàn bộ từ đầu (~10 phút)  : Huấn luyện lại GridSearchCV cho Random Forest & XGBoost")
-    print("  [3] Xem ngay Báo cáo Tóm tắt Kết quả (Không chạy lại code)")
+    print("  [1] Chạy trình diễn nhanh (~20 giây) & Tự động mở Dashboard")
+    print("  [2] Chạy toàn bộ từ đầu (~10 phút) & Tự động mở Dashboard")
+    print("  [3] Xem Báo cáo Tóm tắt Kết quả trên Terminal (Không chạy lại code)")
+    print("  [4] Mở ngay Dashboard ")
     
-    choice = input("\n👉 Nhập lựa chọn của bạn (1 / 2 / 3, nhấn Enter để chọn mặc định [1]): ").strip()
+    choice = input("\n👉 Nhập lựa chọn của bạn (1 / 2 / 3 / 4, nhấn Enter để chọn mặc định [1]): ").strip()
     
     if choice == "3":
         print_executive_summary()
+        return
+    elif choice == "4":
+        launch_dashboard()
         return
 
     skip_train = ["train_rf.py", "train_xgb.py"] if choice != "2" else []
@@ -136,8 +177,11 @@ def main():
             else:
                 print(f"\n   ⚠️ Không tìm thấy file: {script}")
 
-    # In bảng tổng kết toàn bộ đề án ở cuối cùng
+    # In bảng tổng kết toàn bộ đề án
     print_executive_summary()
+    
+    # Tự động mở Dashboard sau khi hoàn tất pipeline
+    launch_dashboard()
 
 if __name__ == "__main__":
     main()
