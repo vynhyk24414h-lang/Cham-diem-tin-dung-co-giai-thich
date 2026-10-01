@@ -81,7 +81,7 @@ with col_b2:
         height=500,
         title=dict(text="<b>Phân bố khách hàng Vỡ nợ vs Không vỡ nợ</b>", font=dict(size=24)),
         xaxis=dict(title="<b>Trạng thái</b>", tickfont=dict(size=18, weight="bold")),
-        yaxis=dict(title="<b>Số lượng khách hàng</b>", tickfont=dict(size=16)),
+        yaxis=dict(title="<b>Số lượng khách hàng</b>", tickfont=dict(size=16), tickformat=","),
         font=dict(family="Arial") 
     )
     st.plotly_chart(fig_def, use_container_width=True)
