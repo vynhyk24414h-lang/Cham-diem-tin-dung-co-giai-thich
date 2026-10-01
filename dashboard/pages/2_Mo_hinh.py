@@ -46,6 +46,7 @@ st.set_page_config(page_title="Mô hình & Chấm điểm", page_icon="🤖", la
 # TÙY CHỈNH GIAO DIỆN
 # ---------------------------------------------------------------------------
 st.markdown("""
+<style>
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] li {
     color: #243B53;
