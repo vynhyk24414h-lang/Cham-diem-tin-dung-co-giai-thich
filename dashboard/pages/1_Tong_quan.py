@@ -5,7 +5,7 @@ import plotly.express as px
 
 st.set_page_config(page_title="Tổng quan", page_icon="🏠", layout="wide")
 
-# --- CUSTOM CSS ĐỂ LÀM SỐ TO VÀ IN ĐẬM ---
+# --- CUSTOM CSS ĐỂ LÀM SỐ TO VÀ IN ĐẬM (Tương thích Dark/Light Mode) ---
 st.markdown("""
 <style>
 /* Chỉnh số liệu KPI to và đậm */
@@ -17,7 +17,7 @@ div[data-testid="stMetricValue"] {
 div[data-testid="stMetricLabel"] {
     font-size: 20px !important;
     font-weight: bold !important;
-    color: #31333F;
+    /* Xóa màu cứng để nó tự đổi theo chế độ Dark/Light */
 }
 /* Chỉnh tiêu đề in đậm */
 h2, h3 {
@@ -43,13 +43,12 @@ with col4:
     st.metric(label="🤖 Số mô hình test", value="3")
 
 st.write("") # Tạo khoảng trắng
-st.markdown("""
-<div style='font-size: 18px; line-height: 1.7; background-color: #f0f2f6; padding: 20px; border-radius: 10px;'>
-<b>Chi tiết:</b> Bộ dữ liệu gồm 30.000 khách hàng. Biến mục tiêu là khả năng khách hàng không thanh toán đúng hạn vào tháng tiếp theo. 
-Sau quá trình làm sạch, chuẩn hóa và xử lý WoE/IV, tập dữ liệu được chia thành <b>Train (24.000)</b> và <b>Test (6.000)</b>. 
+# Dùng thẻ info của Streamlit để nó tự thích ứng màu sắc với giao diện Đen/Trắng
+st.info("""
+**Chi tiết:** Bộ dữ liệu gồm 30.000 khách hàng. Biến mục tiêu là khả năng khách hàng không thanh toán đúng hạn vào tháng tiếp theo. 
+Sau quá trình làm sạch, chuẩn hóa và xử lý WoE/IV, tập dữ liệu được chia thành **Train (24.000)** và **Test (6.000)**. 
 16 biến có sức mạnh dự báo cao nhất được lựa chọn làm đầu vào cho mô hình chấm điểm tín dụng.
-</div>
-""", unsafe_allow_html=True)
+""")
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
@@ -75,9 +74,8 @@ with col_b2:
         text="Số lượng",
         hover_data=["Tỷ lệ (%)"],
         color="Trạng thái",
-        color_discrete_sequence=["#1f77b4", "#ff7f0e"] # Màu xanh dương và cam đậm
+        color_discrete_sequence=["#1f77b4", "#ff7f0e"] 
     )
-    # Làm to text, in đậm font trong biểu đồ
     fig_def.update_traces(texttemplate='<b>%{text}</b>', textposition='inside', textfont_size=24, insidetextanchor="middle")
     fig_def.update_layout(
         showlegend=False, 
@@ -85,7 +83,7 @@ with col_b2:
         title=dict(text="<b>Phân bố khách hàng Vỡ nợ vs Không vỡ nợ</b>", font=dict(size=24)),
         xaxis=dict(title="<b>Trạng thái</b>", tickfont=dict(size=18, weight="bold")),
         yaxis=dict(title="<b>Số lượng khách hàng</b>", tickfont=dict(size=16)),
-        font=dict(family="Arial", color="black")
+        font=dict(family="Arial") # Bỏ màu chữ cứng để tự động sáng/tối
     )
     st.plotly_chart(fig_def, use_container_width=True)
 
@@ -118,7 +116,6 @@ with col_c2:
         color="IV",
         color_continuous_scale="Viridis"
     )
-    # Phóng to chữ số hiển thị ở đầu mỗi cột
     fig_iv.update_traces(texttemplate='<b>%{text:.4f}</b>', textposition='outside', textfont_size=18)
     fig_iv.update_layout(
         height=550,
@@ -126,7 +123,7 @@ with col_c2:
         title=dict(text="<b>Sức mạnh phân biệt (IV) của các biến</b>", font=dict(size=24)),
         xaxis=dict(title="<b>Giá trị IV</b>", tickfont=dict(size=16)),
         yaxis=dict(title="<b>Tên biến</b>", tickfont=dict(size=16, weight="bold")),
-        font=dict(family="Arial", color="black")
+        font=dict(family="Arial") # Bỏ màu chữ cứng để tự động sáng/tối
     )
     st.plotly_chart(fig_iv, use_container_width=True)
 
@@ -152,12 +149,13 @@ fig_corr = px.imshow(
     color_continuous_scale="RdBu_r",
     zmin=-1, zmax=1
 )
-# Làm to font chữ các con số bên trong heatmap
-fig_corr.update_traces(textfont=dict(size=18, family="Arial", color="black", weight="bold"))
+# Bỏ màu chữ cứng để tự động sáng/tối
+fig_corr.update_traces(textfont=dict(size=18, family="Arial", weight="bold"))
 fig_corr.update_layout(
     height=650,
     title=dict(text="<b>Correlation Heatmap (WoE Transformed Variables)</b>", font=dict(size=24)),
     xaxis=dict(tickfont=dict(size=16, weight="bold")),
-    yaxis=dict(tickfont=dict(size=16, weight="bold"))
+    yaxis=dict(tickfont=dict(size=16, weight="bold")),
+    font=dict(family="Arial")
 )
 st.plotly_chart(fig_corr, use_container_width=True)
